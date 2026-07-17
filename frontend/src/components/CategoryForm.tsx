@@ -4,8 +4,7 @@
 
 import React from "react";
 import { CategoryFormData } from "../types";
-import { EXPENSE_CATEGORIES } from "../constants/categories";
-import { TextField, SelectBox, Button } from "../vibes";
+import { TextField, Button } from "../vibes";
 import { useCategoryForm } from "../hooks/useCategoryForm";
 
 interface CategoryFormProps {
@@ -39,18 +38,13 @@ export function CategoryForm({
     marginTop: "0.5rem",
   };
 
-  const categoryOptions = EXPENSE_CATEGORIES.map((category) => ({
-    value: category,
-    label: category,
-  }));
-
   return (
     <form onSubmit={handleSubmit} style={formStyle}>
       <TextField
         label="Name"
         type="text"
         step="0.01"
-        placeholder="0.00"
+        placeholder="Parcel"
         value={formData.name}
         onChange={(e) => handleChange("name", e.target.value)}
         error={errors.name}

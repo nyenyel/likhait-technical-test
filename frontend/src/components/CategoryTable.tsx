@@ -4,7 +4,6 @@
 
 import React, { useState } from "react";
 import { Category, CategoryFormData } from "../types";
-import { getCategoryEmoji } from "../constants/categoryEmojis";
 import { COLORS } from "../constants/colors";
 import { Button, Modal, Pagination } from "../vibes";
 import { CategoryForm } from "./CategoryForm.tsx";
