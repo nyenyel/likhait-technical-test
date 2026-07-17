@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { getExpenses, createExpense } from "../services/api";
-import { Expense, ExpenseFormData } from "../types";
+import { getExpenses, createExpense, fetchCategories } from "../services/api";
+import { Category, Expense, ExpenseFormData } from "../types";
 import YearNavigation from "../components/YearNavigation";
 import { MonthNavigation } from "../components/MonthNavigation";
 import CategoryBreakdown from "../components/CategoryBreakdown";
@@ -11,6 +11,8 @@ import { COLORS } from "../constants/colors";
 
 const HistoryPage: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [category, setCategory] = useState<Category[]>([]);
+  const [errors, setErrors] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -46,14 +48,16 @@ const HistoryPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchExpenses();
+    fetchData();
   }, [selectedYear, selectedMonth]);
 
-  const fetchExpenses = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
       const data = await getExpenses(selectedYear, selectedMonth);
+      const categoryData = await fetchCategories();
       setExpenses(data);
+      setCategory(categoryData)
     } catch (error) {
       console.error("Error fetching expenses:", error);
     } finally {
@@ -73,9 +77,13 @@ const HistoryPage: React.FC = () => {
 
   const handleAddExpense = async (data: ExpenseFormData) => {
     try {
-      await createExpense(data);
-      setIsModalOpen(false);
-      fetchExpenses();
+      const response = await createExpense(data);
+      if(!("errors" in response)) {
+        setIsModalOpen(false);
+        fetchData();
+      }  
+
+      if("errors" in response) setErrors(response.errors)      
     } catch (error) {
       console.error("Error creating expense:", error);
       throw error;
@@ -138,6 +146,17 @@ const HistoryPage: React.FC = () => {
     color: COLORS.secondary.s08,
   };
 
+  const errorStyle: React.CSSProperties = {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "16px",
+    fontSize: "18px",
+    color: '#fff',
+    backgroundColor: '#ff00007e',
+    marginBottom: '5px'
+  };
+
   return (
     <div style={pageStyle}>
       <div style={headerStyle}>
@@ -172,7 +191,7 @@ const HistoryPage: React.FC = () => {
             <div style={{ marginTop: "32px" }}>
               <CalendarExpenseTable
                 expenses={expenses}
-                onExpenseUpdated={fetchExpenses}
+                onExpenseUpdated={fetchData}
               />
             </div>
           </>
@@ -184,9 +203,19 @@ const HistoryPage: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         title="Add New Expense"
       >
+        {errors &&
+          <>
+          {errors.map((e, i) => (
+            <div key={i} style={errorStyle}>
+              {e}
+            </div>
+          ))}
+          </>
+        }
         <ExpenseForm
           onSubmit={handleAddExpense}
           onCancel={() => setIsModalOpen(false)}
+          category={category}
         />
       </Modal>
     </div>
