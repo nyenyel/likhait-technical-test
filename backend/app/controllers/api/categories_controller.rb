@@ -15,7 +15,7 @@ class Api::CategoriesController < ApplicationController
   end
 
   def update
-    categories = categories.find(params[:id])
+    categories = Category.find(params[:id])
 
     if categories.update(category_params)
       render json: format_category(categories)
@@ -25,7 +25,7 @@ class Api::CategoriesController < ApplicationController
   end
 
   def destroy
-    categories = categories.find(params[:id])
+    categories = Category.find(params[:id])
     categories.destroy
     head :no_content
   end
