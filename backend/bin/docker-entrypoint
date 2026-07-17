@@ -5,6 +5,17 @@ if [ -z "${LD_PRELOAD+x}" ] && [ -f /usr/lib/*/libjemalloc.so.2 ]; then
   export LD_PRELOAD="$(echo /usr/lib/*/libjemalloc.so.2)"
 fi
 
+# Remove a stale pid file left over from an unclean shutdown,
+# but only if the process it references isn't actually running.
+PIDFILE="/rails/tmp/pids/server.pid"
+if [ -f "$PIDFILE" ]; then
+  PID="$(cat "$PIDFILE" 2>/dev/null || true)"
+  if [ -z "$PID" ] || ! kill -0 "$PID" 2>/dev/null; then
+    echo "Removing stale pid file: $PIDFILE (pid $PID not running)"
+    rm -f "$PIDFILE"
+  fi
+fi
+
 # If running the rails server then create or migrate existing database
 if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
   ./bin/rails db:prepare
