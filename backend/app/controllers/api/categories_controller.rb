@@ -5,10 +5,10 @@ class Api::CategoriesController < ApplicationController
   end
 
   def create
-    categories = Category.new(categories_params)
+    categories = Category.new(category_params)
 
     if categories.save
-      render json: format_categories(categories), status: :created
+      render json: format_category(categories), status: :created
     else
       render json: { errors: categories.errors.full_messages }, status: :unprocessable_entity
     end
@@ -18,7 +18,7 @@ class Api::CategoriesController < ApplicationController
     categories = categories.find(params[:id])
 
     if categories.update(category_params)
-      render json: format_categories(categories)
+      render json: format_category(categories)
     else
       render json: { errors: categories.errors.full_messages }, status: :unprocessable_entity
     end
@@ -33,7 +33,7 @@ class Api::CategoriesController < ApplicationController
   private 
 
   def category_params
-    params.require(:category).permit(:description, :amount, :category_id, :date)
+    params.require(:category).permit(:name)
   end
 
   def format_category(category)
