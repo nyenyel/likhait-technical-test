@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import HistoryPage from "./pages/HistoryPage";
 import { COLORS } from "./constants/colors";
+import CategoryPage from "./pages/CategoryPage";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("history");
@@ -32,7 +33,7 @@ function App() {
         onToggleCollapse={handleToggleSidebar}
       />
       <main style={mainStyle}>
-        {currentPage === "history" && <HistoryPage />}
+        {currentPage === "history" ? <HistoryPage /> : <CategoryPage/>}
       </main>
     </div>
   );
