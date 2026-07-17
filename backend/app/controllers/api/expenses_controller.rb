@@ -1,4 +1,5 @@
 class Api::ExpensesController < ApplicationController
+
   def index
     expenses = Expense.includes(:category).order(created_at: :desc)
 
@@ -16,6 +17,8 @@ class Api::ExpensesController < ApplicationController
   end
 
   def create
+    return if reject_future_date
+
     expense = Expense.new(expense_params)
 
     if expense.save
@@ -57,5 +60,15 @@ class Api::ExpensesController < ApplicationController
       created_at: expense.created_at,
       updated_at: expense.updated_at
     }
+  end
+
+  def reject_future_date
+    current_date = Time.now.in_time_zone("Asia/Manila").to_date
+    if Date.parse(expense_params[:date]) > current_date
+      render json: { errors: ["Date cannot be in the future"] }, status: 400
+      return true
+    end
+
+    false
   end
 end
